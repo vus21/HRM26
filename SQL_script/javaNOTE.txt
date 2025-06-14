@@ -1,0 +1,58 @@
+hr_management/
+├── src/
+│   ├── config/                 # Cấu hình
+│   │   └── Config.java         # Đọc file config.properties
+│   ├── model/                  # Model: Dữ liệu, logic nghiệp vụ
+│   │   ├── entity/             # Các class entity
+│   │   │   ├── Employee.java
+│   │   │   ├── Department.java
+│   │   │   ├── Position.java
+│   │   │   ├── User.java
+│   │   │   ├── Attendance.java
+│   │   │   ├── Payroll.java
+│   │   │   ├── LeaveRequest.java
+│   │   │   └── PerformanceEvaluation.java
+│   │   ├── service/            # Logic nghiệp vụ
+│   │   │   ├── BaseService.java
+│   │   │   ├── EmployeeService.java
+│   │   │   ├── DepartmentService.java
+│   │   │   ├── PositionService.java
+│   │   │   ├── UserService.java
+│   │   │   ├── AttendanceService.java
+│   │   │   ├── PayrollService.java
+│   │   │   ├── LeaveRequestService.java
+│   │   │   └── PerformanceEvaluationService.java
+│   ├── view/                   # View: Giao diện
+│   │   ├── MainView.java       # JFrame chính, chứa JTabbedPane
+│   │   ├── LoginView.java      # Đăng nhập
+│   │   ├── EmployeeView.java   # Module nhân viên
+│   │   ├── DepartmentView.java # Module phòng ban
+│   │   ├── PositionView.java   # Module chức vụ
+│   │   ├── AttendanceView.java # Module chấm công
+│   │   ├── PayrollView.java    # Module lương
+│   │   ├── LeaveRequestView.java # Module nghỉ phép
+│   │   ├── PerformanceView.java # Module đánh giá
+│   │   └── ReportView.java     # Module báo cáo
+│   ├── controller/             # Controller: Điều phối
+│   │   ├── MainController.java
+│   │   ├── LoginController.java
+│   │   ├── EmployeeController.java
+│   │   ├── DepartmentController.java
+│   │   ├── PositionController.java
+│   │   ├── AttendanceController.java
+│   │   ├── PayrollController.java
+│   │   ├── LeaveRequestController.java
+│   │   ├── PerformanceController.java
+│   │   └── ReportController.java
+│   └── Main.java               # Khởi động ứng dụng
+├── resources/
+│   └── config.properties       # Cấu hình MySQL (URL, user, password)
+└── README.md                   # Hướng dẫn
+=======================================================================================
+Cốt lõi: Quản lý nhân viên, chấm công, lương, nghỉ phép, đánh giá, phân quyền.
+Hỗ trợ: Báo cáo, thống kê, tự động hóa, giao diện dễ dùng.
+=======================================================================================
+Vai trò	Quyền truy cập gợi ý
+Admin	Toàn quyền: thêm/sửa/xoá nhân viên, xem lương, phê duyệt nghỉ phép, thống kê
+Employee	Xem hồ sơ của mình, chấm công, gửi đơn nghỉ phép, xem lương cá nhân
+
