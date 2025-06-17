@@ -1,7 +1,7 @@
  
 package model.entity;
 
-import java.math.BigDecimal;
+
 import java.sql.Date;
 import java.sql.Timestamp;
 

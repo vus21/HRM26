@@ -4,23 +4,29 @@ package view;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 
+
+import model.entity.Department;
+
 import java.awt.*;
 
 public class EmployeeView extends JPanel {
     private JTextField txtEmployeeId, txtFirstName, txtLastName, txtDateOfBirth, txtGender,
                        txtAddress, txtPhoneNumber, txtEmail, txtHireDate, txtEmploymentStatus,
                        txtDepartmentId, txtPositionId, txtBaseSalary, txtSalaryCoefficient;
+                       private JTextField txtCreatedAt, txtUpdatedAt;
     private JTable table;
     private DefaultTableModel tableModel;
     private JButton btnAdd, btnUpdate, btnDelete, btnClear,btnSave, btnCance;
+private JComboBox<Department> comboDepartment;
+private JComboBox<model.entity.Position> comboPosition;
 
     public EmployeeView() {
         setLayout(new BorderLayout());
-
         // Tạo panel form
         JPanel formPanel = new JPanel(new GridLayout(16, 2, 10, 10));
         formPanel.add(new JLabel("Employee ID:"));
         txtEmployeeId = new JTextField(15);
+        txtEmployeeId.setText("0");
         txtEmployeeId.setEditable(false); // ID should not be editable
         formPanel.add(txtEmployeeId);
         formPanel.add(new JLabel("First Name:"));
@@ -49,34 +55,49 @@ public class EmployeeView extends JPanel {
         formPanel.add(txtHireDate);
         formPanel.add(new JLabel("Employment Status:"));
         txtEmploymentStatus = new JTextField(15);
+        txtEmploymentStatus.setText("InActive"); // Default value
         txtEmploymentStatus.setEditable(false); // Default value
         formPanel.add(txtEmploymentStatus);
         formPanel.add(new JLabel("Department ID:"));
-        txtDepartmentId = new JTextField(15);
-        formPanel.add(txtDepartmentId);
+        // txtDepartmentId = new JTextField(15);
+        // formPanel.add(txtDepartmentId);
+        comboDepartment = new JComboBox<>();
+        comboDepartment.setPreferredSize(new Dimension(150, 25));
+        formPanel.add(comboDepartment);
+        
         formPanel.add(new JLabel("Position ID:"));
-        txtPositionId = new JTextField(15);
-        formPanel.add(txtPositionId);
+        // txtPositionId = new JTextField(15);
+        // formPanel.add(txtPositionId);
+        comboPosition = new JComboBox<>();
+        comboPosition.setPreferredSize(new Dimension(150, 25));
+        formPanel.add(comboPosition);
         formPanel.add(new JLabel("Base Salary:"));
         txtBaseSalary = new JTextField(15);
         formPanel.add(txtBaseSalary);
         formPanel.add(new JLabel("Salary Coefficient:"));
         txtSalaryCoefficient = new JTextField(15);
         formPanel.add(txtSalaryCoefficient);
-        
+        formPanel.add(new JLabel("Created At:"));
+        txtCreatedAt = new JTextField(15);
+        txtCreatedAt.setEditable(false); // Created At should not be editable
+        formPanel.add(txtCreatedAt);    
+        formPanel.add(new JLabel("Updated At:"));
+        txtUpdatedAt = new JTextField(15);
+        txtUpdatedAt.setEditable(false); // Updated At should not be editable
+        formPanel.add(txtUpdatedAt);
         btnAdd = new JButton("Add");
         btnCance = new JButton("Cancel");
         btnSave = new JButton("Save");
         // btnCance.setVisible(false);
         
-        formPanel.add(btnCance);
-        formPanel.add(btnSave);
-        formPanel.add(btnAdd);
+        // formPanel.add(btnCance);
+        // formPanel.add(btnSave);
         // Tạo panel button
         JPanel buttonPanel = new JPanel(new FlowLayout());
         btnUpdate = new JButton("Update");
         btnDelete = new JButton("Delete");
         btnClear = new JButton("Clear");
+        buttonPanel.add(btnAdd);
         buttonPanel.add(btnUpdate);
         buttonPanel.add(btnDelete);
         buttonPanel.add(btnClear);
@@ -115,4 +136,15 @@ public class EmployeeView extends JPanel {
     public JButton getBtnClear() { return btnClear; }
     public JButton getBtnSave() { return btnSave; }
     public JButton getBtnCance() { return btnCance;}
+    public JComboBox<Department> getComboDepartment() { return comboDepartment; }
+    public JComboBox<model.entity.Position> getComboPosition() { return comboPosition;}
+
+    public JTextField getTxtCreatedAt() {
+        return txtCreatedAt;
+    }
+
+    public JTextField getTxtUpdatedAt() {
+        return txtUpdatedAt;
+    }
+    
 }
