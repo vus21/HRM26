@@ -24,10 +24,6 @@ protected static final String URL = Config.getDbUrl();
         return pstmt.executeUpdate();  // Gọi đúng 1 lần
     }
 }
-
-
-
-
     protected void closeResources(Connection conn, PreparedStatement pstmt) {
         try {
             

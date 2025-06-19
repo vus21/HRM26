@@ -90,4 +90,6 @@ public class Attendance {
     public void setCreatedAt(Timestamp createdAt) {
         this.createdAt = createdAt;
     }
+    
+    
 }

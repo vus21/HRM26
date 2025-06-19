@@ -86,4 +86,47 @@ public class PositionService extends BaseService {
         }
         return positions;
     }
+    public void deletePosition(int id) {
+    String sql = "DELETE FROM " + TABLE_NAME + " WHERE position_id = ?";
+    try (Connection conn = getConnection();
+         PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+        pstmt.setInt(1, id);
+        pstmt.executeUpdate();
+    } catch (SQLException e) {
+        e.printStackTrace();
+        throw new RuntimeException("Failed to delete position: " + e.getMessage());
+    }
+}
+    public void updatePosition(int id, Position position) {
+    String sql = "UPDATE " + TABLE_NAME + " SET position_name = ?, department_id = ? WHERE position_id = ?";
+    try (Connection conn = getConnection();
+         PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+        pstmt.setString(1, position.getPositionName());
+        pstmt.setInt(2, position.getDepartmentId());
+        pstmt.setInt(3, id);
+
+        pstmt.executeUpdate();
+    } catch (SQLException e) {
+        e.printStackTrace();
+        throw new RuntimeException("Failed to update position: " + e.getMessage());
+    }
+}
+public void addPosition(Position position) {
+    String sql = "INSERT INTO " + TABLE_NAME + " (position_name, department_id, created_at) VALUES (?, ?, ?)";
+    try (Connection conn = getConnection();
+         PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+        pstmt.setString(1, position.getPositionName());
+        pstmt.setInt(2, position.getDepartmentId());
+        pstmt.setTimestamp(3, position.getCreatedAt());
+
+        pstmt.executeUpdate();
+    } catch (SQLException e) {
+        e.printStackTrace();
+        throw new RuntimeException("Failed to add position: " + e.getMessage());
+    }
+}
+
 }

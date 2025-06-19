@@ -1,6 +1,9 @@
 package view;
 
 import javax.swing.*;
+
+import model.entity.Position;
+
 import java.awt.*;
 
 public class MainView extends JFrame {
@@ -13,6 +16,8 @@ public class MainView extends JFrame {
 
         tabbedPane = new JTabbedPane();
         tabbedPane.addTab("Employees", new EmployeeView());
+        tabbedPane.addTab("Department", new EmployeeView());
+        tabbedPane.addTab("Position", new PositionView());
         tabbedPane.addTab("Attendance", new AttendanceView());
         tabbedPane.addTab("Payroll", new PayrollView());
         tabbedPane.addTab("Leave Requests", new LeaveRequestView());
