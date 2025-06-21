@@ -30,7 +30,20 @@ public class EmployeeService extends BaseService {
     }
 }
 
-
+    public String getNameByID(int employeeId) {
+        String sql = "SELECT first_name, last_name FROM " + TABLE_NAME + " WHERE employee_id = ?";
+        try (Connection conn = getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, employeeId);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                return rs.getString("first_name") + " " + rs.getString("last_name");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return "Unknown Employee";
+    }
     public void updateEmployee(int employeeId, Employee employee) {
     String sql = "UPDATE " + TABLE_NAME
             + " SET first_name = ?, last_name = ?, date_of_birth = ?, gender = ?, address = ?, "

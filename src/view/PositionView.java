@@ -10,7 +10,7 @@ public class PositionView extends JPanel {
     private JComboBox<Department> comboDepartment;
     private JTable table;
     private DefaultTableModel tableModel;
-    private JButton btnAdd, btnUpdate, btnDelete, btnClear,  btnCancel;
+    private JButton btnAdd, btnUpdate, btnDelete, btnClear, btnLoad,  btnCancel;
 
     public PositionView() {
         setLayout(new BorderLayout(10, 10));
@@ -74,11 +74,13 @@ public class PositionView extends JPanel {
         btnUpdate = createButton("Update", "update.png");
         btnDelete = createButton("Delete", "delete.png");
         btnClear = createButton("Clear", "clear.png");
+        btnLoad = createButton("Load", "load.png");
         btnCancel = createButton("Cancel", "cancel.png");
         buttonPanel.add(btnAdd);
         buttonPanel.add(btnUpdate);
         buttonPanel.add(btnDelete);
         buttonPanel.add(btnClear);
+        buttonPanel.add(btnLoad);
         buttonPanel.add(btnCancel);
 
         // JTable
@@ -88,6 +90,7 @@ public class PositionView extends JPanel {
         table.setRowHeight(25);
         table.setGridColor(new Color(200, 200, 200));
         table.setShowGrid(true);
+        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         JScrollPane tableScrollPane = new JScrollPane(table);
         tableScrollPane.setBorder(BorderFactory.createLineBorder(new Color(150, 150, 150)));
 
@@ -139,5 +142,6 @@ public class PositionView extends JPanel {
     public JButton getBtnUpdate() { return btnUpdate; }
     public JButton getBtnDelete() { return btnDelete; }
     public JButton getBtnClear() { return btnClear; }
+    public JButton getBtnLoad() { return btnLoad; }
     public JButton getBtnCancel() { return btnCancel; }
 }

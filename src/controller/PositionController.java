@@ -80,6 +80,11 @@ public class PositionController {
         });
 
         view.getBtnClear().addActionListener(e -> clearFields());
+        view.getBtnLoad().addActionListener(e -> {
+            getAllDepartments();
+            loadPositions();
+            clearFields();
+        });
 
         view.getTable().getSelectionModel().addListSelectionListener(e -> {
             int row = view.getTable().getSelectedRow();

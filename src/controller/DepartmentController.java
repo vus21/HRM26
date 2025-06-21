@@ -68,6 +68,11 @@ public class DepartmentController {
         });
 
         departmentView.getBtnClear().addActionListener(e -> clearFields());
+        departmentView.getBtnLoad().addActionListener(e -> {
+
+            loadDepartments();
+            clearFields();
+        });
 
         departmentView.getTable().addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent evt) {

@@ -96,7 +96,16 @@ public class EmployeeController {
                 try {
 
                     Employee employee = createEmployeeFromView();
-                    employeeService.addEmployee(employee); // Có thể ném lỗi tại đây
+                    for (int i = 0; i < employeeView.getTableModel().getRowCount(); i++) {
+                        String existingEmail = (String) employeeView.getTableModel().getValueAt(i, 7); // cột 7 là Email
+                        if (existingEmail != null && existingEmail.equalsIgnoreCase(employee.getEmail())) {
+                            JOptionPane.showMessageDialog(null, "Email already exists in the table!", "Duplicate Email",
+                                    JOptionPane.ERROR_MESSAGE);
+                            
+                            return;        
+                        }
+                    }
+                    employeeService.addEmployee(employee);
 
                     clearFields();
                     loadEmployees();
@@ -104,9 +113,9 @@ public class EmployeeController {
 
                 } catch (NumberFormatException ex) {
                     JOptionPane.showMessageDialog(null, "Invalid input! Please check your data.");
-                } 
-                catch (RuntimeException ex) {
-                    // JOptionPane.showMessageDialog(null, "Failed to add employee!\n" + ex.getMessage());
+                } catch (RuntimeException ex) {
+                    // JOptionPane.showMessageDialog(null, "Failed to add employee!\n" +
+                    // ex.getMessage());
                 }
             }
         });
@@ -146,29 +155,35 @@ public class EmployeeController {
         employeeView.getBtnDelete().addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                int[] selectedRows = employeeView.getTable().getSelectedRows();
+
+                if (selectedRows.length == 0) {
+                    JOptionPane.showMessageDialog(null, "Please select at least one employee to delete.");
+                    return;
+                }
+
+                int confirm = JOptionPane.showConfirmDialog(
+                        null,
+                        "Are you sure you want to delete " + selectedRows.length + " selected employee(s)?",
+                        "Confirm Delete",
+                        JOptionPane.YES_NO_OPTION);
+
+                if (confirm != JOptionPane.YES_OPTION)
+                    return;
+
                 try {
-                    int employeeId = Integer.parseInt(employeeView.getTxtEmployeeId().getText());
-
-                    int confirm = JOptionPane.showConfirmDialog(
-                            null,
-                            "Are you sure you want to delete employee ID " + employeeId + "?",
-                            "Confirm Delete",
-                            JOptionPane.YES_NO_OPTION);
-
-                    if (confirm == JOptionPane.YES_OPTION) {
+                    for (int row : selectedRows) {
+                        int employeeId = (int) employeeView.getTableModel().getValueAt(row, 0); // cột 0 = employee_id
                         employeeService.deleteEmployee(employeeId);
-                        clearFields();
-                        loadEmployees();
-                        JOptionPane.showMessageDialog(null, "Employee deleted successfully!");
                     }
 
-                } catch (NumberFormatException ex) {
-                    JOptionPane.showMessageDialog(null, "Invalid employee ID!");
-                } 
-                // catch (RuntimeException ex) {
-                //     // Trường hợp không tìm thấy nhân viên hoặc lỗi SQL
-                //     JOptionPane.showMessageDialog(null, "Failed to delete employee:\n" + ex.getMessage());
-                // }
+                    loadEmployees();
+                    clearFields();
+                    JOptionPane.showMessageDialog(null, "Selected employee(s) deleted successfully!");
+
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(null, "Failed to delete employee(s):\n" + ex.getMessage());
+                }
             }
         });
 
@@ -178,30 +193,40 @@ public class EmployeeController {
                 clearFields();
             }
         });
+        employeeView.getBtnLoad().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                getPositionsByDepartment();
+                getAllDepartments();
+                loadEmployees();
+            }
+        });
     }
 
-   
-// load danh sách department vào combo box
+    // load danh sách department vào combo box
     public void loadDepartments(List<Department> departments) {
         employeeView.getComboDepartment().removeAllItems();
         for (Department dept : departments) {
             employeeView.getComboDepartment().addItem(dept);
         }
     }
-// lay danh sách department từ service
+
+    // lay danh sách department từ service
     public void getAllDepartments() {
         DepartmentService departmentService = new DepartmentService();
         departments = departmentService.getAllDepartments();
         loadDepartments(departments);
     }
-// load danh sách vị trí vào combo box
+
+    // load danh sách vị trí vào combo box
     public void loadPositions(List<model.entity.Position> positions) {
         employeeView.getComboPosition().removeAllItems();
         for (model.entity.Position pos : positions) {
             employeeView.getComboPosition().addItem(pos);
         }
     }
-// lay danh sách vị trí theo department đã chọn
+
+    // lay danh sách vị trí theo department đã chọn
     public void getPositionsByDepartment() {
         Department selectedDepartment = (Department) employeeView.getComboDepartment().getSelectedItem();
         if (selectedDepartment != null) {
@@ -243,85 +268,82 @@ public class EmployeeController {
         employeeView.getTxtBaseSalary().setText("");
         employeeView.getTxtSalaryCoefficient().setText("");
     }
+
     private String getNonEmpty(String text, String fieldName) {
-    if (text == null || text.trim().isEmpty()) {
-        throw new IllegalArgumentException(fieldName + " cannot be empty.");
+        if (text == null || text.trim().isEmpty()) {
+            throw new IllegalArgumentException(fieldName + " cannot be empty.");
+        }
+        return text.trim();
     }
-    return text.trim();
-}
 
-private Date parseDate(String text, String fieldName) {
-    try {
-        return Date.valueOf(text.trim());
-    } catch (IllegalArgumentException e) {
-        throw new IllegalArgumentException(fieldName + " must be in format yyyy-[m]m-[d]d.");
+    private Date parseDate(String text, String fieldName) {
+        try {
+            return Date.valueOf(text.trim());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException(fieldName + " must be in format yyyy-[m]m-[d]d.");
+        }
     }
-}
 
-private double parseDouble(String text, String fieldName) {
-    try {
-        return Double.parseDouble(text.trim());
-    } catch (NumberFormatException e) {
-        throw new IllegalArgumentException(fieldName + " must be a valid number.");
+    private double parseDouble(String text, String fieldName) {
+        try {
+            return Double.parseDouble(text.trim());
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException(fieldName + " must be a valid number.");
+        }
     }
-}
 
-private int parseIntOrDefault(String text, int defaultValue) {
-    try {
-        return Integer.parseInt(text.trim());
-    } catch (NumberFormatException e) {
-        return defaultValue;
+    private int parseIntOrDefault(String text, int defaultValue) {
+        try {
+            return Integer.parseInt(text.trim());
+        } catch (NumberFormatException e) {
+            return defaultValue;
+        }
     }
-}
-private Employee createEmployeeFromView() {
-    try {
-        int employeeId = parseIntOrDefault(employeeView.getTxtEmployeeId().getText(), 0);
-        
-        String firstName = getNonEmpty(employeeView.getTxtFirstName().getText(), "First Name");
-        String lastName = getNonEmpty(employeeView.getTxtLastName().getText(), "Last Name");
-        Date dateOfBirth = parseDate(employeeView.getTxtDateOfBirth().getText(), "Date of Birth");
-        
-        String gender = getNonEmpty(employeeView.getTxtGender().getText(), "Gender");
-        String address = getNonEmpty(employeeView.getTxtAddress().getText(), "Address");
-        String phoneNumber = getNonEmpty(employeeView.getTxtPhoneNumber().getText(), "Phone Number");
-        String email = getNonEmpty(employeeView.getTxtEmail().getText(), "Email");
-        // mail
-         for (int i = 0; i < employeeView.getTableModel().getRowCount(); i++) {
-        String existingEmail = (String) employeeView.getTableModel().getValueAt(i, 7); // cột 7 là Email
-        if (existingEmail != null && existingEmail.equalsIgnoreCase(email)) {
-            JOptionPane.showMessageDialog(null, "Email already exists in the table!", "Duplicate Email", JOptionPane.ERROR_MESSAGE);
+
+    private Employee createEmployeeFromView() {
+        try {
+            int employeeId = parseIntOrDefault(employeeView.getTxtEmployeeId().getText(), 0);
+
+            String firstName = getNonEmpty(employeeView.getTxtFirstName().getText(), "First Name");
+            String lastName = getNonEmpty(employeeView.getTxtLastName().getText(), "Last Name");
+            Date dateOfBirth = parseDate(employeeView.getTxtDateOfBirth().getText(), "Date of Birth");
+
+            String gender = getNonEmpty(employeeView.getTxtGender().getText(), "Gender");
+            String address = getNonEmpty(employeeView.getTxtAddress().getText(), "Address");
+            String phoneNumber = getNonEmpty(employeeView.getTxtPhoneNumber().getText(), "Phone Number");
+            String email = getNonEmpty(employeeView.getTxtEmail().getText(), "Email");
+            // mail
+
+            Date hireDate = parseDate(employeeView.getTxtHireDate().getText(), "Hire Date");
+            String employmentStatus = getNonEmpty(employeeView.getTxtEmploymentStatus().getText(), "Employment Status");
+
+            Department selectedDepartment = (Department) employeeView.getComboDepartment().getSelectedItem();
+            if (selectedDepartment == null) {
+                throw new IllegalArgumentException("Please select a Department.");
+            }
+            Integer departmentId = selectedDepartment.getDepartmentId();
+
+            Position selectedPosition = (Position) employeeView.getComboPosition().getSelectedItem();
+            if (selectedPosition == null) {
+                throw new IllegalArgumentException("Please select a Position.");
+            }
+            Integer positionId = selectedPosition.getPositionId();
+
+            double baseSalary = parseDouble(employeeView.getTxtBaseSalary().getText(), "Base Salary");
+            double salaryCoefficient = parseDouble(employeeView.getTxtSalaryCoefficient().getText(),
+                    "Salary Coefficient");
+
+            Timestamp createdAt = new Timestamp(System.currentTimeMillis());
+            Timestamp updatedAt = new Timestamp(System.currentTimeMillis());
+
+            return new Employee(employeeId, firstName, lastName, dateOfBirth, gender, address,
+                    phoneNumber, email, hireDate, employmentStatus, departmentId, positionId,
+                    baseSalary, salaryCoefficient, createdAt, updatedAt);
+
+        } catch (IllegalArgumentException e) {
+            JOptionPane.showMessageDialog(null, e.getMessage(), "Input Error", JOptionPane.ERROR_MESSAGE);
             return null;
         }
     }
-        Date hireDate = parseDate(employeeView.getTxtHireDate().getText(), "Hire Date");
-        String employmentStatus = getNonEmpty(employeeView.getTxtEmploymentStatus().getText(), "Employment Status");
-
-        Department selectedDepartment = (Department) employeeView.getComboDepartment().getSelectedItem();
-        if (selectedDepartment == null) {
-            throw new IllegalArgumentException("Please select a Department.");
-        }
-        Integer departmentId = selectedDepartment.getDepartmentId();
-
-        Position selectedPosition = (Position) employeeView.getComboPosition().getSelectedItem();
-        if (selectedPosition == null) {
-            throw new IllegalArgumentException("Please select a Position.");
-        }
-        Integer positionId = selectedPosition.getPositionId();
-
-        double baseSalary = parseDouble(employeeView.getTxtBaseSalary().getText(), "Base Salary");
-        double salaryCoefficient = parseDouble(employeeView.getTxtSalaryCoefficient().getText(), "Salary Coefficient");
-
-        Timestamp createdAt = new Timestamp(System.currentTimeMillis());
-        Timestamp updatedAt = new Timestamp(System.currentTimeMillis());
-
-        return new Employee(employeeId, firstName, lastName, dateOfBirth, gender, address,
-                phoneNumber, email, hireDate, employmentStatus, departmentId, positionId,
-                baseSalary, salaryCoefficient, createdAt, updatedAt);
-
-    } catch (IllegalArgumentException e) {
-        JOptionPane.showMessageDialog(null, e.getMessage(), "Input Error", JOptionPane.ERROR_MESSAGE);
-        return null;
-    }
-}
 
 }

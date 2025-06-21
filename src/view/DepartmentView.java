@@ -9,7 +9,7 @@ public class DepartmentView extends JPanel {
     private JTextField txtDepartmentId, txtDepartmentName, txtCreatedAt;
     private JTable table;
     private DefaultTableModel tableModel;
-    private JButton btnAdd, btnUpdate, btnDelete, btnClear, btnCancel;
+    private JButton btnAdd, btnUpdate, btnDelete, btnClear,btnLoad, btnCancel;
 
     public DepartmentView() {
         setLayout(new BorderLayout(10, 10));
@@ -58,11 +58,13 @@ public class DepartmentView extends JPanel {
         btnUpdate = createButton("Update");
         btnDelete = createButton("Delete");
         btnClear = createButton("Clear");
+        btnLoad = createButton("Load");
         btnCancel = createButton("Cancel");
         buttonPanel.add(btnAdd);
         buttonPanel.add(btnUpdate);
         buttonPanel.add(btnDelete);
         buttonPanel.add(btnClear);
+        buttonPanel.add(btnLoad);
         buttonPanel.add(btnCancel);
 
         // Table
@@ -71,6 +73,7 @@ public class DepartmentView extends JPanel {
         table = new JTable(tableModel);
         table.setRowHeight(24);
         table.setGridColor(Color.LIGHT_GRAY);
+        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         JScrollPane scrollPane = new JScrollPane(table);
 
         // Add to layout
@@ -100,5 +103,6 @@ public class DepartmentView extends JPanel {
     public JButton getBtnUpdate() { return btnUpdate; }
     public JButton getBtnDelete() { return btnDelete; }
     public JButton getBtnClear() { return btnClear; }
+    public JButton getBtnLoad() { return btnLoad; }
     public JButton getBtnCancel() { return btnCancel; }
 }

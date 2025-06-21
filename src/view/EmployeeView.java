@@ -16,7 +16,7 @@ public class EmployeeView extends JPanel {
                        private JTextField txtCreatedAt, txtUpdatedAt;
     private JTable table;
     private DefaultTableModel tableModel;
-    private JButton btnAdd, btnUpdate, btnDelete, btnClear,btnSave, btnCance;
+    private JButton btnAdd, btnUpdate, btnDelete, btnClear,btnSave, btnLoad, btnCance;
 private JComboBox<Department> comboDepartment;
 private JComboBox<model.entity.Position> comboPosition;
 
@@ -97,16 +97,20 @@ private JComboBox<model.entity.Position> comboPosition;
         btnUpdate = new JButton("Update");
         btnDelete = new JButton("Delete");
         btnClear = new JButton("Clear");
+        btnLoad = new JButton("Load");
         buttonPanel.add(btnAdd);
         buttonPanel.add(btnUpdate);
         buttonPanel.add(btnDelete);
         buttonPanel.add(btnClear);
+        buttonPanel.add(btnLoad);
 
         // Tạo JTable
         String[] columnNames = {"ID", "First Name", "Last Name", "DOB", "Gender", "Address", "Phone", "Email",
                               "Hire Date", "Status", "Dept ID", "Pos ID", "Base Salary", "Salary Coeff", "Created At", "Updated At"};
         tableModel = new DefaultTableModel(columnNames, 0);
+        
         table = new JTable(tableModel);
+        table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 
         // Thêm vào layout
         add(new JScrollPane(table), BorderLayout.CENTER);
@@ -134,6 +138,7 @@ private JComboBox<model.entity.Position> comboPosition;
     public JButton getBtnUpdate() { return btnUpdate; }
     public JButton getBtnDelete() { return btnDelete; }
     public JButton getBtnClear() { return btnClear; }
+    public JButton getBtnLoad() { return btnLoad; }
     public JButton getBtnSave() { return btnSave; }
     public JButton getBtnCance() { return btnCance;}
     public JComboBox<Department> getComboDepartment() { return comboDepartment; }

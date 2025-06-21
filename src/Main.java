@@ -1,9 +1,11 @@
 import view.MainView;
 import controller.EmployeeController;
+import controller.LeaveRequestController;
 import controller.AttendanceController;
 import controller.DepartmentController;
 import controller.PositionController;
 import view.EmployeeView;
+import view.LeaveRequestView;
 import view.AttendanceView;
 import view.DepartmentView;
 import view.PositionView;
@@ -37,7 +39,10 @@ public class Main {
             // Bạn có thể thêm các tab còn lại như sau khi có View/Controller:
             // mainView.getTabbedPane().setComponentAt(3, new AttendanceView());
             // mainView.getTabbedPane().setComponentAt(4, new PayrollView());
-            // mainView.getTabbedPane().setComponentAt(5, new LeaveRequestView());
+            LeaveRequestView leaveRequestView = new LeaveRequestView();
+            new LeaveRequestController(leaveRequestView);
+            mainView.getTabbedPane().setComponentAt(5, leaveRequestView);
+
             // mainView.getTabbedPane().setComponentAt(6, new PerformanceView());
             // mainView.getTabbedPane().setComponentAt(7, new ReportView());
 
