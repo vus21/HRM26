@@ -172,4 +172,7 @@ public class Employee {
     public void setUpdatedAt(Timestamp updatedAt) {
         this.updatedAt = updatedAt;
     }
+    public String getFullName() {
+        return firstName + " " + lastName;
+    }
 }

@@ -1,155 +1,185 @@
 package controller;
 
+import view.AttendanceDialog;
+import view.AttendanceView;
+
+import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.table.DefaultTableModel;
+
 import model.entity.Attendance;
 import model.entity.Employee;
 import model.service.AttendanceService;
 import model.service.EmployeeService;
-import view.AttendanceView;
 
-import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
-
-import java.awt.event.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.sql.Date;
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class AttendanceController {
     private AttendanceView attendanceView;
-    private AttendanceService attendanceService;
-    private EmployeeService employeeService;
-
+private EmployeeService employeeService; // Giả sử bạn có service này
+private AttendanceService attendanceService; // Giả sử bạn có service này
     public AttendanceController(AttendanceView view) {
         this.attendanceView = view;
-        this.attendanceService = new AttendanceService();
-        this.employeeService = new EmployeeService();
-
-        loadEmployeesToComboBox();  // 🔹 Thêm dòng này
-        loadAttendances();
+        this.employeeService = new EmployeeService(); // Khởi tạo service
+        this.attendanceService = new AttendanceService(); // Khởi tạo service
         initListeners();
+        loadInitialData();
     }
 
     private void initListeners() {
-        attendanceView.getBtnAdd().addActionListener(e -> addAttendance());
-        attendanceView.getBtnUpdate().addActionListener(e -> updateAttendance());
-        attendanceView.getBtnDelete().addActionListener(e -> deleteAttendance());
-        attendanceView.getBtnClear().addActionListener(e -> clearFields());
+        // attendanceView.getComboYear().addActionListener(e -> updateTableHeader());
+        // attendanceView.getComboMonth().addActionListener(e -> updateTableHeader());
+        attendanceView.getComboMonth().addActionListener(e -> reloadTable());
+attendanceView.getComboYear().addActionListener(e -> reloadTable());
 
         attendanceView.getTable().addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent evt) {
-                int row = attendanceView.getTable().getSelectedRow();
-                if (row >= 0) {
-                    attendanceView.getTxtAttendanceId().setText(attendanceView.getTableModel().getValueAt(row, 0).toString());
+        @Override
+        public void mouseClicked(MouseEvent e) {
+            JTable table = attendanceView.getTable();
+            int row = table.getSelectedRow();
+            int col = table.getSelectedColumn();
 
-                    int employeeId = Integer.parseInt(attendanceView.getTableModel().getValueAt(row, 1).toString());
-                    selectEmployeeInCombo(employeeId);  // 🔹 Set lại combo box theo ID
-
-                    attendanceView.getTxtAttendanceDate().setText(attendanceView.getTableModel().getValueAt(row, 2).toString());
-                    attendanceView.getTxtCheckInTime().setText(attendanceView.getTableModel().getValueAt(row, 3).toString());
-                    attendanceView.getTxtCheckOutTime().setText(attendanceView.getTableModel().getValueAt(row, 4).toString());
-                    attendanceView.getComboStatus().setSelectedItem(attendanceView.getTableModel().getValueAt(row, 5).toString());
-                    attendanceView.getTxtWorkHours().setText(attendanceView.getTableModel().getValueAt(row, 6).toString());
-                    attendanceView.getTxtCreatedAt().setText(attendanceView.getTableModel().getValueAt(row, 7).toString());
-                }
-            }
-        });
-    }
-
-    private Attendance createAttendanceFromView() {
-        int id = Integer.parseInt(attendanceView.getTxtAttendanceId().getText());
-
-        // 🔹 Lấy employee_id từ combo box
-        String selectedItem = attendanceView.getComboEmployee().getSelectedItem().toString(); // "1 - John Doe"
-        int empId = Integer.parseInt(selectedItem.split(" - ")[0].trim());
-
-        Date date = Date.valueOf(attendanceView.getTxtAttendanceDate().getText());
-        Time checkIn = Time.valueOf(attendanceView.getTxtCheckInTime().getText());
-        Time checkOut = Time.valueOf(attendanceView.getTxtCheckOutTime().getText());
-        String status = attendanceView.getComboStatus().getSelectedItem().toString();
-        double hours = (checkOut.getTime() - checkIn.getTime()) / (1000.0 * 60 * 60);
-        Timestamp createdAt = new Timestamp(System.currentTimeMillis());
-
-        return new Attendance(id, empId, date, checkIn, checkOut, status, hours, createdAt);
-    }
-
-    private void loadAttendances() {
-        List<Attendance> list = attendanceService.getAllAttendance();
-        DefaultTableModel model = attendanceView.getTableModel();
-        model.setRowCount(0);
-        for (Attendance a : list) {
-            model.addRow(new Object[] {
-                a.getAttendanceId(), a.getEmployeeId(), a.getAttendanceDate(), a.getCheckInTime(),
-                a.getCheckOutTime(), a.getStatus(), a.getWorkHours(), a.getCreatedAt()
-            });
-        }
-    }
-
-    private void loadEmployeesToComboBox() {
-        List<Employee> employees = employeeService.getAllEmployees();
-        JComboBox<String> combo = attendanceView.getComboEmployee();
-        combo.removeAllItems();
-        for (Employee emp : employees) {
-            combo.addItem(emp.getEmployeeId() + " - " + emp.getFirstName() + " " + emp.getLastName());
-        }
-    }
-
-    private void selectEmployeeInCombo(int employeeId) {
-        JComboBox<String> combo = attendanceView.getComboEmployee();
-        for (int i = 0; i < combo.getItemCount(); i++) {
-            String item = combo.getItemAt(i);
-            if (item.startsWith(employeeId + " -")) {
-                combo.setSelectedIndex(i);
-                break;
+            if (col >= 2) {
+                int day = col - 1;
+                int year = (int) attendanceView.getComboYear().getSelectedItem();
+                int month = (int) attendanceView.getComboMonth().getSelectedItem();
+                int empId = Integer.parseInt(table.getValueAt(row, 0).toString());
+                String empName = table.getValueAt(row, 1).toString();
+                showAttendanceDialog(empId, empName, day, month, year);
             }
         }
+    });
     }
+private void reloadTable() {
+    int year = (int) attendanceView.getComboYear().getSelectedItem();
+    int month = (int) attendanceView.getComboMonth().getSelectedItem();
+    loadMonthlyAttendance(year, month);
+}
+private void showAttendanceDialog(int empId, String name, int day, int month, int year) {
+    JFrame parentFrame = (JFrame) SwingUtilities.getWindowAncestor(attendanceView);
+AttendanceDialog dialog = new AttendanceDialog(parentFrame, empId, name, day, month, year);
+Attendance Nowattendance = attendanceService.getAttendanceByEmployeeAndDate(empId, Date.valueOf(String.format("%04d-%02d-%02d", year, month, day)));
 
-    private void clearFields() {
-        attendanceView.getTxtAttendanceId().setText("0");
-        attendanceView.getComboEmployee().setSelectedIndex(0);
-        attendanceView.getTxtAttendanceDate().setText("");
-        attendanceView.getTxtCheckInTime().setText("");
-        attendanceView.getTxtCheckOutTime().setText("");
-        attendanceView.getComboStatus().setSelectedIndex(0);
-        attendanceView.getTxtWorkHours().setText("");
-        attendanceView.getTxtCreatedAt().setText("");
-    }
-
-    private void addAttendance() {
-        try {
-            Attendance a = createAttendanceFromView();
-            attendanceService.addAttendance(a);
-            loadAttendances();
-            clearFields();
-            JOptionPane.showMessageDialog(null, "Added successfully!");
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(null, "Add failed: " + ex.getMessage());
+    if (Nowattendance != null) {
+        dialog.getComboStatus().setSelectedItem(Nowattendance.getStatus());
+        if (Nowattendance.getStatus().equals("Absent")) {
+            dialog.getTxtCheckIn().setText("");
+            dialog.getTxtCheckOut().setText("");
+        } else {
+            dialog.getTxtCheckIn().setText(Nowattendance.getCheckInTime().toString());
+            dialog.getTxtCheckOut().setText(Nowattendance.getCheckOutTime().toString());
         }
+        
+        
+    } else {
+        dialog.getTxtCheckIn().setText("08:00:00");
+        dialog.getTxtCheckOut().setText("17:00:00");
+        dialog.getComboStatus().setSelectedItem("OnTime");
     }
 
-    private void updateAttendance() {
+    // Gắn sự kiện cho nút Save
+    dialog.getBtnSave().addActionListener(e -> {
         try {
-            int id = Integer.parseInt(attendanceView.getTxtAttendanceId().getText());
-            Attendance a = createAttendanceFromView();
-            attendanceService.updateAttendance(id, a);
-            loadAttendances();
-            clearFields();
-            JOptionPane.showMessageDialog(null, "Updated successfully!");
+            String checkInStr = dialog.getTxtCheckIn().getText();
+            String checkOutStr = dialog.getTxtCheckOut().getText();
+            String status = dialog.getComboStatus().getSelectedItem().toString();
+
+            Time checkIn = Time.valueOf(checkInStr);
+            Time checkOut = Time.valueOf(checkOutStr);
+            double hours = (checkOut.getTime() - checkIn.getTime()) / (1000.0 * 60 * 60);
+            Date date = Date.valueOf(String.format("%04d-%02d-%02d", year, month, day));
+            Timestamp createdAt = new Timestamp(System.currentTimeMillis());
+
+            Attendance attendance = new Attendance(0, empId, date, checkIn, checkOut, status, hours, createdAt);
+
+            if (attendanceService.exists(empId, date)) {
+                attendanceService.updateByEmployeeAndDate(empId, date, attendance);
+            } else {
+                attendanceService.addAttendance(attendance);
+            }
+
+            JOptionPane.showMessageDialog(dialog, "Saved successfully!");
+            dialog.dispose();
+            reloadTable();
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(null, "Update failed: " + ex.getMessage());
+            JOptionPane.showMessageDialog(dialog, "Error: " + ex.getMessage());
         }
+    });
+
+    // Gắn sự kiện cho nút Delete
+    dialog.getBtnDelete().addActionListener(e -> {
+        int confirm = JOptionPane.showConfirmDialog(dialog, "Delete this attendance record?", "Confirm", JOptionPane.YES_NO_OPTION);
+        if (confirm == JOptionPane.YES_OPTION) {
+            Date date = Date.valueOf(String.format("%04d-%02d-%02d", year, month, day));
+            attendanceService.deleteByEmployeeAndDate(empId, date);
+            dialog.dispose();
+            reloadTable();
+        }
+    });
+
+    dialog.setVisible(true);
+}
+
+
+
+    private void loadInitialData() {
+        LocalDate today = LocalDate.now();
+        attendanceView.getComboYear().setSelectedItem(today.getYear());
+        attendanceView.getComboMonth().setSelectedItem(today.getMonthValue());
+       reloadTable();
+
+        // Dummy data loading example
+        
+    }
+    public void loadMonthlyAttendance(int year, int month) {
+    DefaultTableModel model = attendanceView.getTableModel();
+    model.setRowCount(0); // clear table
+    attendanceView.setTableHeaders(year, month); // reset header theo tháng mới
+
+    List<Employee> employees = employeeService.getAllEmployees(); // phải có service này
+    List<Attendance> records = attendanceService.getAttendanceByMonth(year, month);
+
+    // Map attendance by employeeId and day
+    Map<Integer, Map<Integer, String>> attendanceMap = new HashMap<>();
+    for (Attendance a : records) {
+        int empId = a.getEmployeeId();
+        int day = a.getAttendanceDate().toLocalDate().getDayOfMonth();
+        String status = a.getStatus();
+
+        attendanceMap
+            .computeIfAbsent(empId, k -> new HashMap<>())
+            .put(day, status);
     }
 
-    private void deleteAttendance() {
-        try {
-            int id = Integer.parseInt(attendanceView.getTxtAttendanceId().getText());
-            attendanceService.deleteAttendance(id);
-            loadAttendances();
-            clearFields();
-            JOptionPane.showMessageDialog(null, "Deleted successfully!");
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(null, "Delete failed: " + ex.getMessage());
+    // Add row for each employee
+    YearMonth ym = YearMonth.of(year, month);
+    int daysInMonth = ym.lengthOfMonth();
+
+    for (Employee emp : employees) {
+        Object[] row = new Object[2 + daysInMonth];
+        row[0] = emp.getEmployeeId();
+        row[1] = emp.getFullName();
+
+        for (int d = 1; d <= daysInMonth; d++) {
+            String status = attendanceMap
+                .getOrDefault(emp.getEmployeeId(), Collections.emptyMap())
+                .getOrDefault(d, "");
+            row[d + 1] = status;
         }
+        model.addRow(row);
     }
 }
+
+    
+} 

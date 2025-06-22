@@ -1,146 +1,145 @@
 package view;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumnModel;
+
 import java.awt.*;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.util.Vector;
 
 public class AttendanceView extends JPanel {
-    private JTextField txtAttendanceId, txtEmployeeId, txtAttendanceDate, txtCheckInTime, txtCheckOutTime,
-                       txtWorkHours, txtCreatedAt;
-    private JComboBox<String> comboStatus, comboEmployee;
+    private JComboBox<Integer> comboYear;
+    private JComboBox<Integer> comboMonth;
     private JTable table;
     private DefaultTableModel tableModel;
-    private JButton btnAdd, btnUpdate, btnDelete, btnClear, btnCancel;
+    private TableColumnModel colModel;
 
     public AttendanceView() {
         setLayout(new BorderLayout(10, 10));
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        // Tiêu đề
-        JLabel titleLabel = new JLabel("Attendance Management", SwingConstants.CENTER);
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 20));
-        add(titleLabel, BorderLayout.NORTH);
+        // Top panel for Year and Month selection
+        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        comboYear = new JComboBox<>();
+        for (int y = 2020; y <= 2030; y++) {
+            comboYear.addItem(y);
+        }
+        comboMonth = new JComboBox<>();
+        for (int m = 1; m <= 12; m++) {
+            comboMonth.addItem(m);
+        }
+        topPanel.add(new JLabel("Year:"));
+        topPanel.add(comboYear);
+        topPanel.add(new JLabel("Month:"));
+        topPanel.add(comboMonth);
 
-        // Form Panel
-        JPanel formPanel = new JPanel(new GridBagLayout());
-        formPanel.setBorder(BorderFactory.createTitledBorder("Attendance Details"));
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(6, 6, 6, 6);
-        gbc.fill = GridBagConstraints.HORIZONTAL;
+        add(topPanel, BorderLayout.NORTH);
 
-        int row = 0;
-
-        // attendance_id
-        gbc.gridx = 0; gbc.gridy = row;
-        formPanel.add(new JLabel("Attendance ID:"), gbc);
-        gbc.gridx = 1;
-        txtAttendanceId = new JTextField("0", 15);
-        formPanel.add(txtAttendanceId, gbc);
-
-        // employee_id
-        gbc.gridx = 0; gbc.gridy = ++row;
-        formPanel.add(new JLabel("Employee ID:"), gbc);
-        gbc.gridx = 1;
-        // txtEmployeeId = new JTextField(15);
-        // formPanel.add(txtEmployeeId, gbc);
-        comboEmployee = new JComboBox<>();
-comboEmployee.setPreferredSize(new Dimension(200, 25));
-formPanel.add(comboEmployee, gbc);
-
-        // attendance_date
-        gbc.gridx = 0; gbc.gridy = ++row;
-        formPanel.add(new JLabel("Date (yyyy-MM-dd):"), gbc);
-        gbc.gridx = 1;
-        txtAttendanceDate = new JTextField(15);
-        formPanel.add(txtAttendanceDate, gbc);
-
-        // check_in_time
-        gbc.gridx = 0; gbc.gridy = ++row;
-        formPanel.add(new JLabel("Check-in Time (HH:mm:ss):"), gbc);
-        gbc.gridx = 1;
-        txtCheckInTime = new JTextField(15);
-        formPanel.add(txtCheckInTime, gbc);
-
-        // check_out_time
-        gbc.gridx = 0; gbc.gridy = ++row;
-        formPanel.add(new JLabel("Check-out Time (HH:mm:ss):"), gbc);
-        gbc.gridx = 1;
-        txtCheckOutTime = new JTextField(15);
-        formPanel.add(txtCheckOutTime, gbc);
-
-        // status (combo box)
-        gbc.gridx = 0; gbc.gridy = ++row;
-        formPanel.add(new JLabel("Status:"), gbc);
-        gbc.gridx = 1;
-        comboStatus = new JComboBox<>(new String[] {"OnTime", "Late", "EarlyLeave", "Absent"});
-        formPanel.add(comboStatus, gbc);
-
-        // work_hours
-        gbc.gridx = 0; gbc.gridy = ++row;
-        formPanel.add(new JLabel("Work Hours:"), gbc);
-        gbc.gridx = 1;
-        txtWorkHours = new JTextField(15);
-        formPanel.add(txtWorkHours, gbc);
-
-        // created_at
-        gbc.gridx = 0; gbc.gridy = ++row;
-        formPanel.add(new JLabel("Created At:"), gbc);
-        gbc.gridx = 1;
-        txtCreatedAt = new JTextField(15);
-        formPanel.add(txtCreatedAt, gbc);
-
-        // Button Panel
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
-        btnAdd = createButton("Add");
-        btnUpdate = createButton("Update");
-        btnDelete = createButton("Delete");
-        btnClear = createButton("Clear");
-        btnCancel = createButton("Cancel");
-        buttonPanel.add(btnAdd);
-        buttonPanel.add(btnUpdate);
-        buttonPanel.add(btnDelete);
-        buttonPanel.add(btnClear);
-        buttonPanel.add(btnCancel);
-
-        // Table
-        String[] columnNames = {"ID", "Employee ID", "Date", "Check-in", "Check-out", "Status", "Hours", "Created"};
-        tableModel = new DefaultTableModel(columnNames, 0);
-        table = new JTable(tableModel);
+        // Initialize table
+        tableModel = new DefaultTableModel();
+        table = new JTable(tableModel) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                // Only allow editing cells from day columns (2 onwards)
+                return column >= 2;
+            }
+        };
         table.setRowHeight(24);
+        //set do rong
+      table.setRowHeight(24);
+       
         JScrollPane scrollPane = new JScrollPane(table);
-
-        // Add to layout
-        add(formPanel, BorderLayout.WEST);
         add(scrollPane, BorderLayout.CENTER);
-        add(buttonPanel, BorderLayout.SOUTH);
+
+        // Initialize headers with default month (e.g., January 2025)
+        setTableHeaders(2025, 1);
+    }
+    // Trong file AttendanceView.java
+
+
+    public void setTableHeaders(int year, int month) {
+        YearMonth ym = YearMonth.of(year, month);
+        int daysInMonth = ym.lengthOfMonth();
+
+        Vector<String> columns = new Vector<>();
+        columns.add("ID");
+        columns.add("Name");
+        
+        for (int i = 1; i <= daysInMonth; i++) {
+            columns.add(String.valueOf(i));
+        }
+
+        tableModel.setColumnIdentifiers(columns);
+         colModel = table.getColumnModel();
+colModel.getColumn(1).setPreferredWidth(300);
+ // Gọi hàm để thiết lập màu chủ nhật
+table.setDefaultRenderer(Object.class, new AttendanceCellRenderer());
+     
+        
     }
 
-    private JButton createButton(String text) {
-        JButton btn = new JButton(text);
-        btn.setPreferredSize(new Dimension(100, 30));
-        btn.setBackground(new Color(70, 130, 180));
-        btn.setForeground(Color.WHITE);
-        btn.setFocusPainted(false);
-        return btn;
+ public class AttendanceCellRenderer extends DefaultTableCellRenderer {
+    @Override
+    public Component getTableCellRendererComponent(JTable table, Object value,
+        boolean isSelected, boolean hasFocus, int row, int column) {
+
+        Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+        c.setForeground(Color.BLACK);
+        c.setBackground(Color.WHITE);
+
+        // Lấy thông tin năm và tháng hiện tại
+        JComboBox<Integer> comboYear = ((AttendanceView) table.getParent().getParent().getParent()).getComboYear();
+        JComboBox<Integer> comboMonth = ((AttendanceView) table.getParent().getParent().getParent()).getComboMonth();
+
+        if (comboYear != null && comboMonth != null && column >= 2) {
+            int year = (int) comboYear.getSelectedItem();
+            int month = (int) comboMonth.getSelectedItem();
+            int day = column - 1;
+
+            LocalDate date = LocalDate.of(year, month, day);
+            if (date.getDayOfWeek() == DayOfWeek.SUNDAY) {
+                c.setBackground(new Color(241, 195, 207)); // Chủ nhật
+            }
+
+            String status = String.valueOf(value);
+            if ("Absent".equalsIgnoreCase(status)) {
+                setText("O");
+            } else if ("OnTime".equalsIgnoreCase(status) || 
+                       "Late".equalsIgnoreCase(status) || 
+                       "EarlyLeave".equalsIgnoreCase(status)) {
+                setText("X");
+            } else {
+                setText(""); // chưa có dữ liệu
+            }
+        } else {
+            setText(String.valueOf(value)); // cột ID, Name giữ nguyên
+        }
+
+        return c;
+    }
+}
+
+    public JComboBox<Integer> getComboYear() {
+        return comboYear;
     }
 
-    // Getters
-    public JTextField getTxtAttendanceId() { return txtAttendanceId; }
-    public JTextField getTxtEmployeeId() { return txtEmployeeId; }
-    public JTextField getTxtAttendanceDate() { return txtAttendanceDate; }
-    public JTextField getTxtCheckInTime() { return txtCheckInTime; }
-    public JTextField getTxtCheckOutTime() { return txtCheckOutTime; }
-    public JComboBox<String> getComboStatus() { return comboStatus; }
-    public JComboBox<String> getComboEmployee() { return comboEmployee; }
-    public JTextField getTxtWorkHours() { return txtWorkHours; }
-    public JTextField getTxtCreatedAt() { return txtCreatedAt; }
+    public JComboBox<Integer> getComboMonth() {
+        return comboMonth;
+    }
 
-    public JTable getTable() { return table; }
-    public DefaultTableModel getTableModel() { return tableModel; }
+    public JTable getTable() {
+        return table;
+    }
 
-    public JButton getBtnAdd() { return btnAdd; }
-    public JButton getBtnUpdate() { return btnUpdate; }
-    public JButton getBtnDelete() { return btnDelete; }
-    public JButton getBtnClear() { return btnClear; }
-    public JButton getBtnCancel() { return btnCancel; }
+    public DefaultTableModel getTableModel() {
+        return tableModel;
+    }
+    public TableColumnModel getColModel() {
+        return colModel;
+    }
+    
 }

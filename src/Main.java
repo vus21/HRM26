@@ -6,6 +6,7 @@ import controller.DepartmentController;
 import controller.PositionController;
 import view.EmployeeView;
 import view.LeaveRequestView;
+import view.AttendanceDialog;
 import view.AttendanceView;
 import view.DepartmentView;
 import view.PositionView;
@@ -32,6 +33,7 @@ public class Main {
             PositionView positionView = new PositionView();
             new PositionController(positionView);
             mainView.getTabbedPane().setComponentAt(2, positionView);
+            
             AttendanceView attendanceView = new AttendanceView();
             new AttendanceController(attendanceView);
             mainView.getTabbedPane().setComponentAt(3, attendanceView);
@@ -45,7 +47,7 @@ public class Main {
 
             // mainView.getTabbedPane().setComponentAt(6, new PerformanceView());
             // mainView.getTabbedPane().setComponentAt(7, new ReportView());
-
+            
             mainView.setVisible(true);
         });
     }

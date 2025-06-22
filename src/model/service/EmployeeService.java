@@ -66,7 +66,6 @@ public class EmployeeService extends BaseService {
     }
 }
 
-
     public void deleteEmployee(int employeeId) {
     String sql = "DELETE FROM " + TABLE_NAME + " WHERE employee_id = ?";
     try {

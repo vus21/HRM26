@@ -106,4 +106,84 @@ public class AttendanceService extends BaseService {
             rs.getTimestamp("created_at")
         );
     }
+    public List<Attendance> getAttendanceByMonth(int year, int month) {
+    List<Attendance> list = new ArrayList<>();
+    String sql = "SELECT * FROM Attendance WHERE YEAR(attendance_date) = ? AND MONTH(attendance_date) = ?";
+    
+    try (Connection conn = getConnection(); 
+         PreparedStatement stmt = conn.prepareStatement(sql)) {
+        stmt.setInt(1, year);
+        stmt.setInt(2, month);
+        ResultSet rs = stmt.executeQuery();
+        while (rs.next()) {
+            Attendance a = new Attendance(
+                rs.getInt("attendance_id"),
+                rs.getInt("employee_id"),
+                rs.getDate("attendance_date"),
+                rs.getTime("check_in_time"),
+                rs.getTime("check_out_time"),
+                rs.getString("status"),
+                rs.getDouble("work_hours"),
+                rs.getTimestamp("created_at")
+            );
+            list.add(a);
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return list;
+}
+public boolean exists(int empId, Date date) {
+    String sql = "SELECT COUNT(*) FROM Attendance WHERE employee_id = ? AND attendance_date = ?";
+    try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+        ps.setInt(1, empId);
+        ps.setDate(2, date);
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) return rs.getInt(1) > 0;
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return false;
+}
+
+public void updateByEmployeeAndDate(int empId, Date date, Attendance a) {
+    String sql = "UPDATE Attendance SET check_in_time=?, check_out_time=?, status=?, work_hours=?, created_at=? WHERE employee_id=? AND attendance_date=?";
+    try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+        ps.setTime(1, a.getCheckInTime());
+        ps.setTime(2, a.getCheckOutTime());
+        ps.setString(3, a.getStatus());
+        ps.setDouble(4, a.getWorkHours());
+        ps.setTimestamp(5, a.getCreatedAt());
+        ps.setInt(6, empId);
+        ps.setDate(7, date);
+        ps.executeUpdate();
+    } catch (SQLException e) {
+        throw new RuntimeException("Failed to update attendance", e);
+    }
+}
+
+public void deleteByEmployeeAndDate(int empId, Date date) {
+    String sql = "DELETE FROM Attendance WHERE employee_id = ? AND attendance_date = ?";
+    try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+        ps.setInt(1, empId);
+        ps.setDate(2, date);
+        ps.executeUpdate();
+    } catch (SQLException e) {
+        throw new RuntimeException("Failed to delete attendance", e);
+    }
+}
+public Attendance getAttendanceByEmployeeAndDate(int empId, Date date) {
+    String sql = "SELECT * FROM Attendance WHERE employee_id = ? AND attendance_date = ?";
+    try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+        ps.setInt(1, empId);
+        ps.setDate(2, date);
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) {
+            return mapResultSet(rs);
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return null;
+}
 }
