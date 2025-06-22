@@ -111,6 +111,7 @@ public class LeaveRequestController {
     private void clearFields() {
         view.getTxtLeaveId().setText("0");
         view.getTxtEmployeeId().setText("");
+        view.getTxtEmployeeName().setText("");
         view.getTxtStartDate().setText("");
         view.getTxtEndDate().setText("");
         view.getComboLeaveType().setSelectedIndex(0);
