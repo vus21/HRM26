@@ -72,14 +72,6 @@ Table Leave_Requests {
   created_at timestamp [default: `CURRENT_TIMESTAMP`]
 }
 
-Table Performance_Evaluations {
-  evaluation_id int [pk, increment]
-  employee_id int [not null, ref: > Employees.employee_id]
-  evaluation_date date [not null]
-  score decimal(5,2) [not null]
-  comments text
-  created_at timestamp [default: `CURRENT_TIMESTAMP`]
-}
 
 Table Users {
   user_id int [pk, increment]

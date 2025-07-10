@@ -10,7 +10,16 @@ public class User {
     private String passwordHash;
     private String role;
     private Timestamp createdAt;
-
+    public User(){
+        // Default constructor
+        this.userId = 0;
+        this.employeeId = 0;
+        this.username = "";
+        this.passwordHash = "";
+        this.role = "";
+        this.createdAt = new Timestamp(System.currentTimeMillis());
+        
+    };
     public User(int userId, int employeeId, String username, String passwordHash, String role, Timestamp createdAt) {
         this.userId = userId;
         this.employeeId = employeeId;

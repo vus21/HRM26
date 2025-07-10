@@ -80,16 +80,6 @@ CREATE TABLE Leave_Requests (
     FOREIGN KEY (employee_id) REFERENCES Employees(employee_id) ON DELETE CASCADE
 );
 
--- Table for Performance Evaluations (Đánh giá hiệu suất)
-CREATE TABLE Performance_Evaluations (
-    evaluation_id INT PRIMARY KEY AUTO_INCREMENT,
-    employee_id INT NOT NULL,
-    evaluation_date DATE NOT NULL,
-    score DECIMAL(5,2) NOT NULL, -- Simplified score out of 100
-    comments TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (employee_id) REFERENCES Employees(employee_id) ON DELETE CASCADE
-);
 
 -- Table for Users (Quản lý người dùng)
 CREATE TABLE Users (
@@ -102,9 +92,3 @@ CREATE TABLE Users (
     FOREIGN KEY (employee_id) REFERENCES Employees(employee_id) ON DELETE CASCADE
 );
 
--- Indexes for performance optimization
-CREATE INDEX idx_employee_email ON Employees(email);
-CREATE INDEX idx_attendance_employee_id ON Attendance(employee_id);
-CREATE INDEX idx_payroll_employee_id ON Payroll(employee_id);
-CREATE INDEX idx_leave_employee_id ON Leave_Requests(employee_id);
-CREATE INDEX idx_evaluation_employee_id ON Performance_Evaluations(employee_id);

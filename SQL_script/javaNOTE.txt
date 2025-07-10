@@ -54,5 +54,5 @@ Hỗ trợ: Báo cáo, thống kê, tự động hóa, giao diện dễ dùng.
 =======================================================================================
 Vai trò	Quyền truy cập gợi ý
 Admin	Toàn quyền: thêm/sửa/xoá nhân viên, xem lương, phê duyệt nghỉ phép, thống kê
-Employee	Xem hồ sơ của mình, chấm công, gửi đơn nghỉ phép, xem lương cá nhân
+Employee	Xem hồ sơ của mình, gửi đơn nghỉ phép, xem lương cá nhân
 

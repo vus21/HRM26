@@ -4,12 +4,14 @@ import controller.LeaveRequestController;
 import controller.AttendanceController;
 import controller.DepartmentController;
 import controller.PositionController;
+import model.entity.User;
 import view.EmployeeView;
 import view.LeaveRequestView;
 import view.AttendanceDialog;
 import view.AttendanceView;
 import view.DepartmentView;
 import view.PositionView;
+import view.UserView;
 
 import javax.swing.*;
 
@@ -47,8 +49,14 @@ public class Main {
 
             // mainView.getTabbedPane().setComponentAt(6, new PerformanceView());
             // mainView.getTabbedPane().setComponentAt(7, new ReportView());
-            
-            mainView.setVisible(true);
+            UserView userView = new UserView();
+            new controller.UserController(userView);
+            mainView.getTabbedPane().setComponentAt(7, userView);
+            setview(mainView);
+            // mainView.setVisible(true);
         });
     }
+    private static void setview(JFrame frame) {
+        
+        frame.setVisible(true);}
 }

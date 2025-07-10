@@ -265,9 +265,6 @@ VALUES (1, '2025-06-01', '2025-06-01', 'Annual', 'Approved', 11),
        (5, '2025-06-02', '2025-06-02', 'Annual', 'Approved', 11),
        (9, '2025-06-03', '2025-06-03', 'Annual', 'Approved', 11);
 
-INSERT INTO Performance_Evaluations (employee_id, evaluation_date, score, comments)
-SELECT employee_id, '2025-06-10', FLOOR(RAND() * (95-80+1))+80, 'Good performance'
-FROM Employees;
 
 
 
